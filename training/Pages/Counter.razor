@@ -1,0 +1,53 @@
+﻿@page "/counter"
+
+<PageTitle>Affichage date heure</PageTitle>
+
+<h1>Affichage date heure</h1>
+
+<p role="status">@dateHeure</p>
+
+@if(isUpdating)
+{
+    <button class="btn btn-primary" @onclick="PauseOrUnpause">Pause timer</button>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="PauseOrUnpause">Unpause timer</button>
+}
+
+@code {
+    private DateTime dateHeure = DateTime.Now;
+
+    private bool isUpdating = true;
+
+    private async Task Timer()
+    {
+        var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+
+        while (await timer.WaitForNextTickAsync())
+        {
+            while(!isUpdating)
+            {
+                await Task.Delay(1);
+            }
+            DisplayDateHeure();
+            StateHasChanged();
+        }
+    }
+
+    private void DisplayDateHeure()
+    {
+        this.dateHeure = DateTime.Now;
+    }
+
+    private void PauseOrUnpause()
+    {
+        isUpdating = isUpdating ? false : true;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Timer();
+    }
+}
